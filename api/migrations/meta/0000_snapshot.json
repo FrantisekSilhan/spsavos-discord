@@ -1,0 +1,164 @@
+{
+  "id": "49922721-88b2-40c2-968e-22a5b07af04a",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.DiscordBotConfigs": {
+      "name": "DiscordBotConfigs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "smallserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "guild": {
+          "name": "guild",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "welcome_message": {
+          "name": "welcome_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "DiscordBotConfigs_bot_id_DiscordBots_id_fk": {
+          "name": "DiscordBotConfigs_bot_id_DiscordBots_id_fk",
+          "tableFrom": "DiscordBotConfigs",
+          "tableTo": "DiscordBots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "DiscordBotConfigs_bot_id_unique": {
+          "name": "DiscordBotConfigs_bot_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "bot_id"
+          ]
+        }
+      }
+    },
+    "public.DiscordBots": {
+      "name": "DiscordBots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "smallserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "api_key": {
+          "name": "api_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "DiscordBots_api_key_unique": {
+          "name": "DiscordBots_api_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "api_key"
+          ]
+        }
+      }
+    },
+    "public.DiscordCounters": {
+      "name": "DiscordCounters",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "discord_bot_config_id": {
+          "name": "discord_bot_config_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "channel_id": {
+          "name": "channel_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "DiscordCounters_discord_bot_config_id_DiscordBotConfigs_id_fk": {
+          "name": "DiscordCounters_discord_bot_config_id_DiscordBotConfigs_id_fk",
+          "tableFrom": "DiscordCounters",
+          "tableTo": "DiscordBotConfigs",
+          "columnsFrom": [
+            "discord_bot_config_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "DiscordCounters_channel_id_unique": {
+          "name": "DiscordCounters_channel_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "channel_id"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
