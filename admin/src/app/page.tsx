@@ -2,28 +2,19 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { fetchDiscordUserInformation } from "./api/users";
 
 export default function Home() {
   const {data: session, status } = useSession({required: true});
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://discord.com//api/v10/users/@me", {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        });
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
+    console.log(session);
     if (session) {
-      fetchData();
+      fetchDiscordUserInformation(session.accessToken).then((res) => {
+        console.log(typeof(res));
+      })
     }
+
   }, [session]);
 
   if (!session) {
@@ -37,7 +28,6 @@ export default function Home() {
 
   return (
     <div>
-      <p>Signed in as {session.accessToken}</p>
       <button onClick={() => signOut()}>Sign out</button>
 
 
