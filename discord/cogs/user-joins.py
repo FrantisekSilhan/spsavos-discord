@@ -5,10 +5,13 @@ import random
 class UserJoinsCog(commands.Cog):
   def __init__(self, client):
     self.client = client
+    self.ids = {
+      "verified_role": 1147959883157737592
+    }
 
   @commands.Cog.listener()
   async def on_member_join(self, member):
-    if discord.utils.get(member.roles, id=1147959883157737592):
+    if discord.utils.get(member.roles, id=self.ids["verified_role"]):
       return
     
     await member.send(
