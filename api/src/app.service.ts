@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { STATUS_CODES } from 'http';
 
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return STATUS_CODES.OK;
   }
 }
