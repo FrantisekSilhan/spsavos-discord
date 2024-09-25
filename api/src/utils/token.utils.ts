@@ -1,38 +1,118 @@
-import crypto from "crypto";
+/*
+ * Copyright (C) 2024  František Šilhán <frantisek@slhn.cz>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-export const generateApiKey = (): string => {
-  const apiKeyBuffer = crypto.randomBytes(30);
+import crypto from "crypto";
+const API_KEY_LENGTH = 16;
+const SALT_LENGTH = 10;
+const ID_LENGTH = 2;
+
+export const generateRandomString = (length: number): string => {
+  const apiKeyBuffer = crypto.randomBytes(length);
 
   return apiKeyBuffer.toString("base64");
+};
+
+export const generateApiKey = (): string => {
+  const apiKey = generateRandomString(API_KEY_LENGTH);
+
+  return apiKey;
+};
+
+export const generateSalt = (): string => {
+  const salt = generateRandomString(SALT_LENGTH);
+
+  return salt;
 };
 
 export interface TokenPayload {
   id: number;
   apiKey: string;
+  salt: string;
 }
 
 export const generateToken = (tokenPayload: TokenPayload): string => {
-  const bId = BigInt(tokenPayload.id);
-  const bApiKey = BigInt(`0x${Buffer.from(tokenPayload.apiKey, "base64").toString("hex")}`);
+  const idBuffer = Buffer.alloc(ID_LENGTH);
+  idBuffer.writeUInt16BE(tokenPayload.id);
 
-  const token = Buffer.concat([
-    Buffer.from([Number(bId & 0xffn)]),
-    Buffer.from(bApiKey.toString(16), "hex"),
-    Buffer.from([Number((bId >> 8n) & 0xffn)]),
-  ]).toString("base64");
+  const apiKeyBuffer = Buffer.from(tokenPayload.apiKey, "base64");
+  const saltBuffer = Buffer.from(tokenPayload.salt, "base64");
+
+  const combinedBuffer = Buffer.concat([idBuffer, apiKeyBuffer, saltBuffer]);
+  
+  const token = combinedBuffer.toString("base64");
 
   return token;
 };
 
 export const degenerateToken = (token: string): TokenPayload => {
-  const buffer = Buffer.from(token, "base64");
+  const combinedBuffer = Buffer.from(token, "base64");
 
-  const id = buffer.readUInt8(0) + (buffer.readUInt8(2) << 8);
-  const apiKey = buffer.subarray(1, 17).toString("base64");
+  const id = combinedBuffer.readUInt16BE(0);
+  const apiKeyBuffer = combinedBuffer.subarray(ID_LENGTH, ID_LENGTH+API_KEY_LENGTH);
+  const saltBuffer = combinedBuffer.subarray(ID_LENGTH+API_KEY_LENGTH, ID_LENGTH+API_KEY_LENGTH+SALT_LENGTH);
 
-  return { id, apiKey };
+  const apiKey = apiKeyBuffer.toString("base64");
+  const salt = saltBuffer.toString("base64");
+
+  return { id, apiKey, salt };
 };
 
-export const hashString = (str: string): string => {
-  return crypto.pbkdf2Sync(str, "", 400000, 64, "sha512").toString("base64");
+export const hashApiKey = (apiKey: string, salt: string): string => {
+  const hash = crypto.pbkdf2Sync(Buffer.from(apiKey, "base64"), Buffer.from(salt, "base64"), 1000, 64, "sha512");
+
+  return hash.toString("base64");
+};
+
+export const verifyToken = (tokenPayload: TokenPayload, hashedApiKey: string): boolean => {
+  const hash = hashApiKey(tokenPayload.apiKey, tokenPayload.salt);
+
+  return hash === hashedApiKey;
+};
+
+export default {
+  generateRandomString,
+  generateApiKey,
+  generateSalt,
+  generateToken,
+  degenerateToken,
+  hashApiKey,
+  verifyToken,
 }
+
+/* Example usage
+Generation:
+import tokenUtils from "./utils/token.utils";
+
+const apiKey = tokenUtils.generateApiKey();
+const salt = tokenUtils.generateSalt();
+
+const hashedApiKey = tokenUtils.hashApiKey(apiKey, salt);
+
+// const ID = Database insert HASHED_API_KEY returning PK ID
+
+const tokenPayload = { id: ID, apiKey, salt };
+const token = tokenUtils.generateToken(tokenPayload);
+
+Verification:
+import tokenUtils from "./utils/token.utils";
+
+const tokenPayload = tokenUtils.degenerateToken(token);
+
+// const HASHED_API_KEY = Database select HASHED_API_KEY where ID = tokenPayload.id
+
+const isValid = tokenUtils.verifyToken(tokenPayload, <HASHED_API_KEY>);
+*/
