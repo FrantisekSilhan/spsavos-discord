@@ -20,30 +20,53 @@ const API_KEY_LENGTH = 16;
 const SALT_LENGTH = 10;
 const ID_LENGTH = 2;
 
+/**
+ * 
+ * @param length Length of the result string 
+ * @returns Base64 encoded randomly generated string of the specified length
+ */
 export const generateRandomString = (length: number): string => {
   const apiKeyBuffer = crypto.randomBytes(length);
 
   return apiKeyBuffer.toString("base64");
 };
 
+/**
+ * 
+ * @returns Configuration-specific generated API key
+ */
 export const generateApiKey = (): string => {
   const apiKey = generateRandomString(API_KEY_LENGTH);
 
   return apiKey;
 };
 
+/**
+ * 
+ * @returns Configuration-specific generated salt
+ */
 export const generateSalt = (): string => {
   const salt = generateRandomString(SALT_LENGTH);
 
   return salt;
 };
 
+/**
+ * @property id - primary key of the db entry (SmallInt)
+ * @property apiKey - API key
+ * @property salt - salt
+ */
 export interface TokenPayload {
   id: number;
   apiKey: string;
   salt: string;
 }
 
+/**
+ * 
+ * @param tokenPayload Previously generated token payload
+ * @returns Compiled token
+ */
 export const generateToken = (tokenPayload: TokenPayload): string => {
   const idBuffer = Buffer.alloc(ID_LENGTH);
   idBuffer.writeUInt16BE(tokenPayload.id);
@@ -58,6 +81,11 @@ export const generateToken = (tokenPayload: TokenPayload): string => {
   return token;
 };
 
+/**
+ * 
+ * @param token Received token
+ * @returns Decompiled token payload
+ */
 export const degenerateToken = (token: string): TokenPayload => {
   const combinedBuffer = Buffer.from(token, "base64");
 
@@ -71,12 +99,24 @@ export const degenerateToken = (token: string): TokenPayload => {
   return { id, apiKey, salt };
 };
 
+/**
+ * 
+ * @param apiKey Pre-generated API key
+ * @param salt Pre-generated salt
+ * @returns Hashed API key
+ */
 export const hashApiKey = (apiKey: string, salt: string): string => {
   const hash = crypto.pbkdf2Sync(Buffer.from(apiKey, "base64"), Buffer.from(salt, "base64"), 1000, 64, "sha512");
 
   return hash.toString("base64");
 };
 
+/**
+ * 
+ * @param tokenPayload Decompiled token payload
+ * @param hashedApiKey Hashed API key
+ * @returns True if the token is valid, false otherwise
+ */
 export const verifyToken = (tokenPayload: TokenPayload, hashedApiKey: string): boolean => {
   const hash = hashApiKey(tokenPayload.apiKey, tokenPayload.salt);
 

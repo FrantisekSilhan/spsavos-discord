@@ -2,7 +2,6 @@ import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/commo
 import { eq } from "drizzle-orm";
 import db from "src/data/tables/pg/main";
 import { DiscordBots } from "src/data/tables/pg/schema";
-import { createDiscordBot } from "src/discord/discord.utils";
 
 @Injectable()
 export class DiscordMiddleware implements NestMiddleware {
@@ -21,7 +20,7 @@ export class DiscordMiddleware implements NestMiddleware {
         }*/).from(DiscordBots).where(eq(DiscordBots.id, botId)).execute()
 
         botPromise.then((bot) => {
-            console.log(bot, "botik");
+            console.log(bot);
         });
 
         next();
