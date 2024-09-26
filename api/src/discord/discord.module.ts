@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { DiscordController } from "./discord.controller";
-import { DiscordMiddleware } from "src/middlewares/discord.middleware";
+import { AppAuthMiddleware } from "src/middlewares/appauth.middleware";
 
 @Module({
     controllers: [DiscordController],
@@ -8,6 +8,6 @@ import { DiscordMiddleware } from "src/middlewares/discord.middleware";
 
 export class DiscordModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(DiscordMiddleware).forRoutes('discord');
+        consumer.apply(AppAuthMiddleware).forRoutes('discord/*');
     }
 }

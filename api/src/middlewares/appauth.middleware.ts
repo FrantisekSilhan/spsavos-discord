@@ -5,7 +5,7 @@ import { DiscordBots } from "src/data/tables/pg/schema";
 import tokenUtils from "src/utils/token.utils";
 
 @Injectable()
-export class DiscordMiddleware implements NestMiddleware {
+export class AppAuthMiddleware implements NestMiddleware {
     use(req: any, res: any, next: () => void) {
         const authHeader = req.headers.authorization;
 
