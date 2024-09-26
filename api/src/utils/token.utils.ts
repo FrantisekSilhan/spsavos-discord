@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const crypto = require("crypto");
+import * as crypto from "node:crypto";
 
 const API_KEY_LENGTH = 16;
 const SALT_LENGTH = 10;

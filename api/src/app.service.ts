@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { STATUS_CODES } from 'http';
+import { createDiscordBot } from './discord/discord.utils';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return STATUS_CODES.OK;
+  async getHello(): Promise<string> {
+    return createDiscordBot();
   }
 }
