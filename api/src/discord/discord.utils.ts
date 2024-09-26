@@ -1,21 +1,21 @@
-import { randomBytes } from "crypto";
 import db from "src/data/tables/pg/main";
 import { DiscordBots } from "src/data/tables/pg/schema";
-
-const bcrypt = require('bcrypt');
+import tokenUtils from "src/utils/token.utils";
 
 export const createDiscordBot = async () : Promise<string> => {
-    const token = randomBytes(32).toString('hex');
+    const apiKey: string = tokenUtils.generateApiKey();
+    const salt: string = tokenUtils.generateSalt();
+
+    const hashedApiKey: string = await tokenUtils.hashApiKey(apiKey, salt);
 
     const bots = await db.insert(DiscordBots).values({
-        api_key: await bcrypt.hash(token, 10)
+        api_key: hashedApiKey
     }).returning(({
-        id: DiscordBots.id,
+        id: DiscordBots.id
+    }))
+    const tokenPayload = {  id: bots[0].id,apiKey, salt };
+    const token = tokenUtils.generateToken(tokenPayload);
 
-    })).execute();
-
-    const bot = bots[0];
-
-    return `${bot.id} ${token}`;
+    return `${token}`;
 };
 
