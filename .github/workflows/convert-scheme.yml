@@ -11,20 +11,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - name: Convert core.drawio to core.png
-        uses: ./workflow-files
+        uses: ./resources/workflows
         with:
           quality: 100
           scale: 1.0
           src: resources/schemes/core.drawio
           dest: resources/schemes/core.png
 
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "there are changes"
+            echo "skip=false" >> $GITHUB_ENV
+          else
+            echo "no changes"
+            echo "skip=true" >> $GITHUB_ENV
+          fi
+
       - name: Commit and push the PNG to the repository
+        if: env.skip != 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add resources/schemes/core.png
-          git commit -m "Automated conversion of core.drawio to core.png"
+          git commit -m "chore(resources/schemes): automated conversion of core.drawio to core.png"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
