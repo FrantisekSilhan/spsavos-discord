@@ -10,6 +10,8 @@ import { AdminService } from "./admin.service";
 })
 export class AdminModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
+        consumer.apply(AppAuthMiddleware).forRoutes('admin');
+        consumer.apply(AdminMiddleware).forRoutes('admin');
         consumer.apply(AppAuthMiddleware).forRoutes('admin/*');
         consumer.apply(AdminMiddleware).forRoutes('admin/*');
     }

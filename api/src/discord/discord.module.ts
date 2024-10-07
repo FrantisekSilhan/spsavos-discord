@@ -8,6 +8,7 @@ import { AppAuthMiddleware } from "src/middlewares/appauth.middleware";
 
 export class DiscordModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
+        consumer.apply(AppAuthMiddleware).forRoutes('discord');
         consumer.apply(AppAuthMiddleware).forRoutes('discord/*');
     }
 }

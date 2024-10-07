@@ -11,7 +11,6 @@ async function bootstrap() {
   .onConflictDoNothing({
     target: Admins.discord_id
   });
-  
 
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);

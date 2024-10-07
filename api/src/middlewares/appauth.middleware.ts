@@ -7,7 +7,7 @@ import tokenUtils from "src/utils/token.utils";
 @Injectable()
 export class AppAuthMiddleware implements NestMiddleware {
     use(req: any, res: any, next: () => void) {
-        const authHeader = req.headers.authorization;
+        const authHeader = req.headers['x-api-key'];
 
         if (!authHeader) {
             throw new UnauthorizedException('Authorization header is missing');
