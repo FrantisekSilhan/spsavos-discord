@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { createDiscordBot } from 'src/discord/discord.utils';
+import { Admins } from './schema';
 
 // Create a PostgreSQL connection pool
 const pool = new Pool({

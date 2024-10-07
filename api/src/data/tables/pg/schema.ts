@@ -19,3 +19,7 @@ export const DiscordCounters = pgTable('DiscordCounters', {
     role_id: bigint('role_id', {mode: 'bigint'}).notNull(),
     placeholder: text('placeholder').notNull()
 });
+
+export const Admins = pgTable('Admins', {
+    discord_id: bigint('discord_id', { mode: 'bigint' }).primaryKey(),
+});
